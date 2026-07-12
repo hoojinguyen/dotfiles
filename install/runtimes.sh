@@ -51,12 +51,53 @@ if [ -f "$HOME/.cargo/env" ]; then
     source "$HOME/.cargo/env"
 fi
 
-# 3b. NVM (Node Version Manager)
+# 3b. NVM (Node Version Manager) & Node.js
 if [ ! -d "$HOME/.nvm" ]; then
     echo "Installing NVM (Node Version Manager)..."
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 fi
 
+# Load NVM for the current installer run
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+if has_cmd nvm; then
+    echo "Installing latest Node.js..."
+    nvm install node
+    nvm use node
+    nvm alias default node
+fi
+
+# 3c. Yarn & pnpm (via Corepack or NPM global)
+if has_cmd corepack; then
+    echo "Enabling corepack and preparing latest yarn and pnpm..."
+    corepack enable
+    corepack prepare yarn@latest pnpm@latest --activate
+elif has_cmd npm; then
+    echo "Installing latest yarn and pnpm globally via npm..."
+    npm install -g yarn@latest pnpm@latest
+fi
+
+# 3d. Ruby (via rbenv or ASDF)
+if has_cmd rbenv; then
+    eval "$(rbenv init -)"
+    LATEST_RUBY=$(rbenv install -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | tail -1)
+    if ! rbenv versions | grep -q "$LATEST_RUBY"; then
+        echo "Installing latest Ruby version ($LATEST_RUBY) via rbenv (this might take a few minutes)..."
+        rbenv install "$LATEST_RUBY"
+        rbenv global "$LATEST_RUBY"
+    else
+        echo "Ruby $LATEST_RUBY is already installed via rbenv."
+    fi
+elif has_cmd asdf; then
+    if ! asdf list ruby 2>/dev/null | grep -q "latest"; then
+        echo "Installing latest Ruby version via asdf (this might take a few minutes)..."
+        asdf install ruby latest
+        asdf global ruby latest
+    else
+        echo "Latest Ruby is already installed via asdf."
+    fi
+fi
 
 # 5. Global NPM Packages (Only if Node/NPM is active)
 if has_cmd npm; then

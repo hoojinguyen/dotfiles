@@ -33,6 +33,12 @@ if [ "$OS" = "Darwin" ]; then
     echo "Installing Brew formulae..."
     brew install git zsh curl bat eza fzf gh jq lazygit uv pipx asdf rbenv coreutils tmux
 
+    # Install Docker Desktop (Cask) on macOS
+    if ! has_cmd docker; then
+        echo "Installing Docker Desktop..."
+        brew install --cask docker
+    fi
+
 elif [ "$OS" = "Linux" ]; then
     # Linux package installation via apt-get (Ubuntu/Debian)
     if [ -f /etc/debian_version ]; then
@@ -52,7 +58,7 @@ elif [ "$OS" = "Linux" ]; then
         $SUDO apt-get update -y
 
         echo "Installing core utilities..."
-        $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat eza lazygit python3-pip python3-venv 2>/dev/null || {
+        $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat eza lazygit python3-pip python3-venv docker.io docker-buildx 2>/dev/null || {
             echo "Standard install command encountered errors. Trying fallback subset..."
             $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat 
         }
