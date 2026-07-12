@@ -115,4 +115,4 @@ fi
 
 
 # bun completions
-[ -s "/Users/hoojinguyen/.bun/_bun" ] && source "/Users/hoojinguyen/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
