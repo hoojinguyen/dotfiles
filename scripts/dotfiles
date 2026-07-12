@@ -1,7 +1,14 @@
 #!/bin/bash
 # scripts/dotfiles - Command-line interface for managing dotfiles
 
-DOTFILES_ROOT="${DOTFILES:-$HOME/.dotfiles}"
+# Resolve the absolute path of this script, following symlinks recursively
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DOTFILES_ROOT="$( cd -P "$( dirname "$SOURCE" )/.." >/dev/null 2>&1 && pwd )"
 
 show_help() {
     echo "Dotfiles Management CLI"
@@ -23,7 +30,7 @@ case "$1" in
         bash "$DOTFILES_ROOT/sync.sh"
         ;;
     update)
-        cd "$DOTFILES_ROOT"
+        cd "$DOTFILES_ROOT" || exit 1
         echo "Pulling latest changes from dotfiles repository..."
         if git pull origin main; then
             echo "Successfully pulled latest changes."
