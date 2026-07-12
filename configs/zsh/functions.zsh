@@ -274,9 +274,17 @@ function edit() {
   if command -v code &> /dev/null; then
     code "$@"
   elif [ "$(uname)" = "Darwin" ]; then
-    open -t "$@"
+    # Try to open with macOS default editor (TextEdit/etc), fallback to terminal editors if it fails
+    # (e.g. if the file does not exist yet or we are in a headless/SSH terminal session)
+    open -t "$@" 2>/dev/null || {
+      if [ -n "$EDITOR" ]; then
+        eval "$EDITOR \"\$@\""
+      else
+        nano "$@"
+      fi
+    }
   elif [ -n "$EDITOR" ]; then
-    $EDITOR "$@"
+    eval "$EDITOR \"\$@\""
   else
     nano "$@"
   fi
