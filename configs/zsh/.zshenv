@@ -3,7 +3,10 @@
 # Set the path to the dotfiles directory (dynamically resolved if symlinked)
 if [ -L "$HOME/.zshenv" ]; then
     export DOTFILES=$(dirname $(dirname $(dirname $(readlink "$HOME/.zshenv"))))
-else
+fi
+
+# Fallback to ~/.dotfiles if dynamic resolution fails or resolves to a non-existent directory
+if [ -z "$DOTFILES" ] || [ ! -d "$DOTFILES" ]; then
     export DOTFILES="$HOME/.dotfiles"
 fi
 
