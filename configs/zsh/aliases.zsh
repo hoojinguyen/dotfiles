@@ -126,7 +126,6 @@ alias vc="nvim"
 alias zz="zellij"
 alias lv="lvim"
 alias lvo="lvim ."
-alias ff="fzf"
 
 # Node / NPM / Yarn / PNPM
 alias ni="npm install"
