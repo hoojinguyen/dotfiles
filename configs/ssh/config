@@ -1,0 +1,12 @@
+# ~/.ssh/config - SSH client configuration
+
+Host *
+    # Keep sessions alive (sends server packet every 60s)
+    ServerAliveInterval 60
+    ServerAliveCountMax 10
+
+    # Multiplexing: Reuse a single network connection for multiple terminal sessions
+    # (greatly speeds up subsequent connections to the same server)
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/%r@%h-%p
+    ControlPersist 10m

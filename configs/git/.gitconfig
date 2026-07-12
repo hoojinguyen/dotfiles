@@ -1,0 +1,18 @@
+[user]
+	name = hooji nguyen
+	email = vanhoinguyen98@gmail.com
+[color]
+	ui = true
+[core]
+	editor = open -a "/Applications/Antigravity.app" --wait
+	excludesfile = ~/.gitignore_global
+	autocrlf = input
+[push]
+	autoSetupRemote = true
+[pull]
+	ff = true
+[init]
+	defaultBranch = main
+
+[safe]
+	directory = *

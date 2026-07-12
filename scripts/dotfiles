@@ -1,0 +1,43 @@
+#!/bin/bash
+# scripts/dotfiles - Command-line interface for managing dotfiles
+
+DOTFILES_ROOT="${DOTFILES:-$HOME/dotfiles}"
+
+show_help() {
+    echo "Dotfiles Management CLI"
+    echo "Usage: dotfiles <command>"
+    echo ""
+    echo "Commands:"
+    echo "  sync       Pull updates and push local changes"
+    echo "  status     Show git status of the dotfiles repository"
+    echo "  edit       Open dotfiles folder in the default editor"
+    echo "  bootstrap  Run the bootstrap setup script"
+    echo "  help       Show this help message"
+    echo ""
+    echo "Note: To easily change directories, use the 'dotfiles' alias: cd \$DOTFILES"
+}
+
+case "$1" in
+    sync)
+        bash "$DOTFILES_ROOT/sync.sh"
+        ;;
+    status)
+        cd "$DOTFILES_ROOT" && git status
+        ;;
+    edit)
+        if command -v code &> /dev/null; then
+            code "$DOTFILES_ROOT"
+        elif [ -n "$EDITOR" ]; then
+            $EDITOR "$DOTFILES_ROOT"
+        else
+            echo "No editor found. Opening with nano..."
+            nano "$DOTFILES_ROOT"
+        fi
+        ;;
+    bootstrap)
+        bash "$DOTFILES_ROOT/bootstrap.sh"
+        ;;
+    *)
+        show_help
+        ;;
+esac
