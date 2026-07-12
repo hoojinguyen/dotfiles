@@ -82,7 +82,7 @@ This repository includes a `dotfiles` CLI wrapper linked to `~/bin/dotfiles`. Yo
 
 If you need to remove the symlinks and restore your original configuration files, you can run the uninstaller script:
 ```bash
-./uninstall.sh
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/hoojinguyen/dotfiles/main/uninstall.sh)"
 ```
 This will:
 - Safely remove all generated symlinks in your home directory.
