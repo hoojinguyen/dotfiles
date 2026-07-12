@@ -1,6 +1,5 @@
-[user]
-	name = hooji nguyen
-	email = vanhoinguyen98@gmail.com
+[include]
+	path = ~/.gitconfig.local
 [color]
 	ui = true
 [core]

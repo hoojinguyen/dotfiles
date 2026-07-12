@@ -3,6 +3,21 @@
 
 OS="$(uname -s)"
 
+# Load selections if available
+SELECTIONS_FILE="$HOME/.dotfiles_selections"
+if [ -f "$SELECTIONS_FILE" ]; then
+    source "$SELECTIONS_FILE"
+fi
+
+# Set defaults to true if not defined
+INSTALL_LAZYGIT="${INSTALL_LAZYGIT:-true}"
+INSTALL_GH="${INSTALL_GH:-true}"
+INSTALL_ASDF="${INSTALL_ASDF:-true}"
+INSTALL_RBENV="${INSTALL_RBENV:-true}"
+INSTALL_UV="${INSTALL_UV:-true}"
+INSTALL_PIPX="${INSTALL_PIPX:-true}"
+INSTALL_DOCKER="${INSTALL_DOCKER:-true}"
+
 echo "=================================================="
 echo "Installing system packages for OS: $OS..."
 echo "=================================================="
@@ -29,19 +44,34 @@ if [ "$OS" = "Darwin" ]; then
     echo "Updating Homebrew..."
     brew update
 
-    # Install packages declared in Brewfile
-    BREWFILE_PATH="${DOTFILES_ROOT:-$HOME/dotfiles}/configs/brew/Brewfile"
-    if [ -f "$BREWFILE_PATH" ]; then
-        echo "Installing Homebrew packages from Brewfile ($BREWFILE_PATH)..."
-        brew bundle --file="$BREWFILE_PATH"
-    else
-        echo "WARNING: Brewfile not found at $BREWFILE_PATH. Falling back to default list."
-        brew install git zsh curl bat eza fzf gh jq lazygit uv pipx asdf rbenv coreutils tmux git-delta fd
-        if ! has_cmd docker; then
-            echo "Installing Docker Desktop..."
-            brew install --cask docker
-        fi
-    fi
+    # Generate temporary Brewfile based on selections
+    TEMP_BREWFILE=$(mktemp)
+    cat <<EOT > "$TEMP_BREWFILE"
+tap "homebrew/bundle"
+brew "git"
+brew "zsh"
+brew "curl"
+brew "coreutils"
+brew "tmux"
+brew "bat"
+brew "eza"
+brew "fzf"
+brew "fd"
+brew "git-delta"
+brew "jq"
+EOT
+
+    if [ "$INSTALL_LAZYGIT" = "true" ]; then echo 'brew "lazygit"' >> "$TEMP_BREWFILE"; fi
+    if [ "$INSTALL_GH" = "true" ]; then echo 'brew "gh"' >> "$TEMP_BREWFILE"; fi
+    if [ "$INSTALL_UV" = "true" ]; then echo 'brew "uv"' >> "$TEMP_BREWFILE"; fi
+    if [ "$INSTALL_PIPX" = "true" ]; then echo 'brew "pipx"' >> "$TEMP_BREWFILE"; fi
+    if [ "$INSTALL_ASDF" = "true" ]; then echo 'brew "asdf"' >> "$TEMP_BREWFILE"; fi
+    if [ "$INSTALL_RBENV" = "true" ]; then echo 'brew "rbenv"' >> "$TEMP_BREWFILE"; fi
+    if [ "$INSTALL_DOCKER" = "true" ]; then echo 'cask "docker"' >> "$TEMP_BREWFILE"; fi
+
+    echo "Installing Homebrew packages via generated Brewfile..."
+    brew bundle --file="$TEMP_BREWFILE"
+    rm "$TEMP_BREWFILE"
 
 elif [ "$OS" = "Linux" ]; then
     # Linux package installation via apt-get (Ubuntu/Debian)
@@ -62,8 +92,14 @@ elif [ "$OS" = "Linux" ]; then
         $SUDO apt-get update -y
 
         echo "Installing core utilities..."
-        # Add git-delta and fd-find packages
-        $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat eza lazygit git-delta fd-find python3-pip python3-venv docker.io docker-buildx 2>/dev/null || {
+        
+        # Build apt package list dynamically based on selections
+        APT_PKGS="git zsh curl build-essential tmux fzf jq bat eza git-delta fd-find"
+        if [ "$INSTALL_LAZYGIT" = "true" ]; then APT_PKGS="$APT_PKGS lazygit"; fi
+        if [ "$INSTALL_GH" = "true" ]; then APT_PKGS="$APT_PKGS gh"; fi
+        if [ "$INSTALL_DOCKER" = "true" ]; then APT_PKGS="$APT_PKGS docker.io docker-buildx"; fi
+
+        $SUDO apt-get install -y $APT_PKGS 2>/dev/null || {
             echo "Standard install command encountered errors. Trying fallback subset..."
             $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat fd-find
         }
@@ -75,12 +111,12 @@ elif [ "$OS" = "Linux" ]; then
             ln -sf "$(which fdfind)" "$HOME/.local/bin/fd"
         fi
 
-        # Install uv and pipx if not installed via apt
-        if ! has_cmd uv; then
+        # Install uv and pipx if selected and not installed via apt
+        if [ "$INSTALL_UV" = "true" ] && ! has_cmd uv; then
             echo "Installing uv package manager..."
             curl -LsSf https://astral.sh/uv/install.sh | sh
         fi
-        if ! has_cmd pipx; then
+        if [ "$INSTALL_PIPX" = "true" ] && ! has_cmd pipx; then
             echo "Installing pipx..."
             python3 -m pip install --user pipx 2>/dev/null || $SUDO apt-get install -y pipx
         fi

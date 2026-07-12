@@ -1,0 +1,4 @@
+.agents
+.scratch
+skills-lock.json
+*.env.local
