@@ -29,14 +29,18 @@ if [ "$OS" = "Darwin" ]; then
     echo "Updating Homebrew..."
     brew update
 
-    # List of formulae to install
-    echo "Installing Brew formulae..."
-    brew install git zsh curl bat eza fzf gh jq lazygit uv pipx asdf rbenv coreutils tmux
-
-    # Install Docker Desktop (Cask) on macOS
-    if ! has_cmd docker; then
-        echo "Installing Docker Desktop..."
-        brew install --cask docker
+    # Install packages declared in Brewfile
+    BREWFILE_PATH="${DOTFILES_ROOT:-$HOME/dotfiles}/configs/brew/Brewfile"
+    if [ -f "$BREWFILE_PATH" ]; then
+        echo "Installing Homebrew packages from Brewfile ($BREWFILE_PATH)..."
+        brew bundle --file="$BREWFILE_PATH"
+    else
+        echo "WARNING: Brewfile not found at $BREWFILE_PATH. Falling back to default list."
+        brew install git zsh curl bat eza fzf gh jq lazygit uv pipx asdf rbenv coreutils tmux git-delta fd
+        if ! has_cmd docker; then
+            echo "Installing Docker Desktop..."
+            brew install --cask docker
+        fi
     fi
 
 elif [ "$OS" = "Linux" ]; then
@@ -58,10 +62,18 @@ elif [ "$OS" = "Linux" ]; then
         $SUDO apt-get update -y
 
         echo "Installing core utilities..."
-        $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat eza lazygit python3-pip python3-venv docker.io docker-buildx 2>/dev/null || {
+        # Add git-delta and fd-find packages
+        $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat eza lazygit git-delta fd-find python3-pip python3-venv docker.io docker-buildx 2>/dev/null || {
             echo "Standard install command encountered errors. Trying fallback subset..."
-            $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat 
+            $SUDO apt-get install -y git zsh curl build-essential tmux fzf jq bat fd-find
         }
+
+        # Create symlink for fd command (Debian/Ubuntu packages fd-find as fdfind)
+        if has_cmd fdfind && ! has_cmd fd; then
+            echo "Creating symlink for fd-find..."
+            mkdir -p "$HOME/.local/bin"
+            ln -sf "$(which fdfind)" "$HOME/.local/bin/fd"
+        fi
 
         # Install uv and pipx if not installed via apt
         if ! has_cmd uv; then
@@ -70,7 +82,7 @@ elif [ "$OS" = "Linux" ]; then
         fi
         if ! has_cmd pipx; then
             echo "Installing pipx..."
-            python3 -m pip install --user pipx 2>/dev/null || apt-get install -y pipx
+            python3 -m pip install --user pipx 2>/dev/null || $SUDO apt-get install -y pipx
         fi
     else
         echo "Unsupported Linux distribution. Please install packages manually."

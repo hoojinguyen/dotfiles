@@ -21,6 +21,11 @@ echo ""
 echo "--> 1. Running symlinks setup..."
 bash ./install/symlinks.sh
 
+# 1b. Interactive Secrets configuration
+echo ""
+echo "--> 1b. Checking and setting up local secrets..."
+bash ./install/secrets-setup.sh
+
 # 2. Install OS packages
 echo ""
 echo "--> 2. Running OS packages installer..."
@@ -35,6 +40,11 @@ bash ./install/ohmyzsh.sh
 echo ""
 echo "--> 4. Setting up language/runtime environments..."
 bash ./install/runtimes.sh
+
+# 4b. Setup SSH configuration
+echo ""
+echo "--> 4b. Setting up SSH keys and agent..."
+bash ./install/ssh-setup.sh
 
 # 5. Finalize path settings
 export PATH="$HOME/bin:$PATH"

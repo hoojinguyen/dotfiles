@@ -7,12 +7,19 @@
 	editor = open -a "/Applications/Antigravity.app" --wait
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+	syntax-theme = Dracula
 [push]
 	autoSetupRemote = true
 [pull]
 	ff = true
 [init]
 	defaultBranch = main
-
 [safe]
 	directory = *

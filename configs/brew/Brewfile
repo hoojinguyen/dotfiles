@@ -1,0 +1,31 @@
+# configs/brew/Brewfile - Homebrew bundle configuration
+# Use 'brew bundle install' to install all packages declared here.
+
+# Package Source repositories
+tap "homebrew/bundle"
+
+# Core development utilities
+brew "git"
+brew "zsh"
+brew "curl"
+brew "coreutils"
+brew "tmux"
+
+# Modern terminal enhancements & search
+brew "bat"
+brew "eza"
+brew "fzf"
+brew "fd"
+brew "git-delta"
+brew "jq"
+brew "lazygit"
+brew "gh"
+
+# Runtimes & environment managers
+brew "uv"
+brew "pipx"
+brew "asdf"
+brew "rbenv"
+
+# Applications / Casks
+cask "docker"
