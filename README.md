@@ -75,3 +75,16 @@ This repository includes a `dotfiles` CLI wrapper linked to `~/bin/dotfiles`. Yo
 - `dotfiles edit`: Open the dotfiles directory in your default editor.
 - `dotfiles bootstrap`: Run the setup bootstrapper again.
 - `dotfiles help`: Show the help guide.
+
+---
+
+## Uninstalling
+
+If you need to remove the symlinks and restore your original configuration files, you can run the uninstaller script:
+```bash
+./uninstall.sh
+```
+This will:
+- Safely remove all generated symlinks in your home directory.
+- Revert and restore your original configuration files from their latest backups (`*.bak_*`).
+- Clean up empty installation folders (like `~/bin` or `~/.pip` if empty).
