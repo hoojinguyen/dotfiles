@@ -28,6 +28,11 @@ if [ "$INSTALL_ASDF" = "true" ]; then
     if [ ! -d "$HOME/.asdf" ] && ! has_cmd asdf; then
         echo "Cloning ASDF Git repository..."
         git clone https://github.com/asdf-vm/asdf.git "$HOME/.asdf" --branch v0.14.0
+    else
+        if has_cmd asdf; then
+            echo "Updating ASDF..."
+            asdf update
+        fi
     fi
 
     # Load ASDF for the current installer script
@@ -62,6 +67,9 @@ if [ "$INSTALL_BUN" = "true" ]; then
     if ! has_cmd bun; then
         echo "Installing Bun runtime..."
         curl -fsSL https://bun.sh/install | bash
+    else
+        echo "Upgrading Bun runtime to latest..."
+        bun upgrade
     fi
 fi
 
@@ -70,6 +78,11 @@ if [ "$INSTALL_RUST" = "true" ]; then
     if ! has_cmd cargo && ! has_cmd rustup; then
         echo "Installing Rust via rustup..."
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    else
+        if has_cmd rustup; then
+            echo "Updating Rust via rustup..."
+            rustup update
+        fi
     fi
 fi
 

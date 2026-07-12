@@ -55,22 +55,115 @@ ask_yes_no() {
     done
 }
 
+# Version detectors
+get_asdf_ver() {
+    if has_cmd asdf; then
+        echo -n " (Detected: v$(asdf --version | awk '{print $1}'))"
+    elif [ -d "$HOME/.asdf" ]; then
+        echo -n " (Detected in ~/.asdf)"
+    fi
+}
+get_rbenv_ver() {
+    if has_cmd rbenv; then
+        echo -n " (Detected: v$(rbenv --version | awk '{print $2}'))"
+    fi
+}
+get_uv_ver() {
+    if has_cmd uv; then
+        echo -n " (Detected: v$(uv --version | awk '{print $2}'))"
+    fi
+}
+get_pipx_ver() {
+    if has_cmd pipx; then
+        echo -n " (Detected: v$(pipx --version))"
+    fi
+}
+get_node_ver() {
+    if has_cmd node; then
+        echo -n " (Detected: $(node --version))"
+    fi
+}
+get_bun_ver() {
+    if has_cmd bun; then
+        echo -n " (Detected: v$(bun --version))"
+    fi
+}
+get_rust_ver() {
+    if has_cmd rustc; then
+        echo -n " (Detected: $(rustc --version | awk '{print $2}'))"
+    fi
+}
+get_ruby_ver() {
+    if has_cmd ruby; then
+        echo -n " (Detected: v$(ruby --version | awk '{print $2}'))"
+    fi
+}
+get_docker_ver() {
+    if has_cmd docker; then
+        echo -n " (Detected: v$(docker --version | awk '{print $3}' | tr -d ','))"
+    fi
+}
+get_lazygit_ver() {
+    if has_cmd lazygit; then
+        echo -n " (Detected)"
+    fi
+}
+get_gh_ver() {
+    if has_cmd gh; then
+        echo -n " (Detected: v$(gh --version | head -n1 | awk '{print $3}'))"
+    fi
+}
+
+# Helper to prompt for a tool's installation/update
+prompt_tool() {
+    local tool_name="$1"
+    local var_name="$2"
+    local ver_info="$3"
+    
+    if [ -n "$ver_info" ]; then
+        if ask_yes_no "$tool_name$ver_info is already installed. Do you want to check/update it to the latest version?" "n"; then
+            eval "$var_name=true"
+        else
+            eval "$var_name=false"
+        fi
+    else
+        if ask_yes_no "Install $tool_name?" "y"; then
+            eval "$var_name=true"
+        else
+            eval "$var_name=false"
+        fi
+    fi
+}
+
 # Check non-interactive terminal
 if [ ! -t 0 ]; then
     echo "Non-interactive terminal detected. Skipping onboarding prompts and using defaults."
     if [ ! -f "$SELECTIONS_FILE" ]; then
+        # Default guard in non-interactive shell: skip already installed tools
+        INSTALL_LAZYGIT_VAL=true; if has_cmd lazygit; then INSTALL_LAZYGIT_VAL=false; fi
+        INSTALL_GH_VAL=true; if has_cmd gh; then INSTALL_GH_VAL=false; fi
+        INSTALL_ASDF_VAL=true; if has_cmd asdf || [ -d "$HOME/.asdf" ]; then INSTALL_ASDF_VAL=false; fi
+        INSTALL_RBENV_VAL=true; if has_cmd rbenv; then INSTALL_RBENV_VAL=false; fi
+        INSTALL_UV_VAL=true; if has_cmd uv; then INSTALL_UV_VAL=false; fi
+        INSTALL_PIPX_VAL=true; if has_cmd pipx; then INSTALL_PIPX_VAL=false; fi
+        INSTALL_NODE_VAL=true; if has_cmd node; then INSTALL_NODE_VAL=false; fi
+        INSTALL_BUN_VAL=true; if has_cmd bun; then INSTALL_BUN_VAL=false; fi
+        INSTALL_RUST_VAL=true; if has_cmd rustc; then INSTALL_RUST_VAL=false; fi
+        INSTALL_RUBY_VAL=true; if has_cmd ruby; then INSTALL_RUBY_VAL=false; fi
+        INSTALL_DOCKER_VAL=true; if has_cmd docker; then INSTALL_DOCKER_VAL=false; fi
+        
         cat <<EOT > "$SELECTIONS_FILE"
-INSTALL_LAZYGIT=true
-INSTALL_GH=true
-INSTALL_ASDF=true
-INSTALL_RBENV=true
-INSTALL_UV=true
-INSTALL_PIPX=true
-INSTALL_NODE=true
-INSTALL_BUN=true
-INSTALL_RUST=true
-INSTALL_RUBY=true
-INSTALL_DOCKER=true
+INSTALL_LAZYGIT=$INSTALL_LAZYGIT_VAL
+INSTALL_GH=$INSTALL_GH_VAL
+INSTALL_ASDF=$INSTALL_ASDF_VAL
+INSTALL_RBENV=$INSTALL_RBENV_VAL
+INSTALL_UV=$INSTALL_UV_VAL
+INSTALL_PIPX=$INSTALL_PIPX_VAL
+INSTALL_NODE=$INSTALL_NODE_VAL
+INSTALL_BUN=$INSTALL_BUN_VAL
+INSTALL_RUST=$INSTALL_RUST_VAL
+INSTALL_RUBY=$INSTALL_RUBY_VAL
+INSTALL_DOCKER=$INSTALL_DOCKER_VAL
 EOT
     fi
     exit 0
@@ -82,78 +175,74 @@ if [ -f "$SELECTIONS_FILE" ]; then
     echo -e "${YELLOW}Loaded previous selections from $SELECTIONS_FILE${NC}"
 fi
 
-# Default values if not already set
-INSTALL_LAZYGIT="${INSTALL_LAZYGIT:-true}"
-INSTALL_GH="${INSTALL_GH:-true}"
-INSTALL_ASDF="${INSTALL_ASDF:-true}"
-INSTALL_RBENV="${INSTALL_RBENV:-true}"
-INSTALL_UV="${INSTALL_UV:-true}"
-INSTALL_PIPX="${INSTALL_PIPX:-true}"
-INSTALL_NODE="${INSTALL_NODE:-true}"
-INSTALL_BUN="${INSTALL_BUN:-true}"
-INSTALL_RUST="${INSTALL_RUST:-true}"
-INSTALL_RUBY="${INSTALL_RUBY:-true}"
-INSTALL_DOCKER="${INSTALL_DOCKER:-true}"
-
 # 1. Tool Customization Wizard
 echo -e "${BOLD}--- 1. Customize Tool & Runtime Installation ---${NC}"
 if ask_yes_no "Would you like to customize which optional tools/runtimes to install?" "n"; then
     
-    if ask_yes_no "Install Git CLI enhancements (lazygit, GitHub CLI)?" "$( [ "$INSTALL_LAZYGIT" = "true" ] && echo "y" || echo "n" )"; then
-        INSTALL_LAZYGIT=true
-        INSTALL_GH=true
+    prompt_tool "Lazygit" "INSTALL_LAZYGIT" "$(get_lazygit_ver)"
+    prompt_tool "GitHub CLI" "INSTALL_GH" "$(get_gh_ver)"
+    
+    # Version managers are often tied, but we can check them individually
+    asdf_installed="$(get_asdf_ver)"
+    rbenv_installed="$(get_rbenv_ver)"
+    if [ -n "$asdf_installed" ] || [ -n "$rbenv_installed" ]; then
+        if ask_yes_no "Version Managers (ASDF/rbenv)$asdf_installed$rbenv_installed are already installed. Update them?" "n"; then
+            INSTALL_ASDF=true
+            INSTALL_RBENV=true
+        else
+            INSTALL_ASDF=false
+            INSTALL_RBENV=false
+        fi
     else
-        INSTALL_LAZYGIT=false
-        INSTALL_GH=false
+        if ask_yes_no "Install Version Managers (ASDF, rbenv)?" "y"; then
+            INSTALL_ASDF=true
+            INSTALL_RBENV=true
+        else
+            INSTALL_ASDF=false
+            INSTALL_RBENV=false
+        fi
     fi
 
-    if ask_yes_no "Install Version Managers (asdf, rbenv)?" "$( [ "$INSTALL_ASDF" = "true" ] && echo "y" || echo "n" )"; then
-        INSTALL_ASDF=true
-        INSTALL_RBENV=true
+    # Python package tools
+    uv_installed="$(get_uv_ver)"
+    pipx_installed="$(get_pipx_ver)"
+    if [ -n "$uv_installed" ] || [ -n "$pipx_installed" ]; then
+        if ask_yes_no "Python tools (uv/pipx)$uv_installed$pipx_installed are already installed. Update them?" "n"; then
+            INSTALL_UV=true
+            INSTALL_PIPX=true
+        else
+            INSTALL_UV=false
+            INSTALL_PIPX=false
+        fi
     else
-        INSTALL_ASDF=false
-        INSTALL_RBENV=false
+        if ask_yes_no "Install Python tools (uv, pipx)?" "y"; then
+            INSTALL_UV=true
+            INSTALL_PIPX=true
+        else
+            INSTALL_UV=false
+            INSTALL_PIPX=false
+        fi
     fi
 
-    if ask_yes_no "Install Python tools (uv, pipx)?" "$( [ "$INSTALL_UV" = "true" ] && echo "y" || echo "n" )"; then
-        INSTALL_UV=true
-        INSTALL_PIPX=true
-    else
-        INSTALL_UV=false
-        INSTALL_PIPX=false
-    fi
-
-    if ask_yes_no "Install Node.js environment (NVM, Node, Yarn, pnpm)?" "$( [ "$INSTALL_NODE" = "true" ] && echo "y" || echo "n" )"; then
-        INSTALL_NODE=true
-    else
-        INSTALL_NODE=false
-    fi
-
-    if ask_yes_no "Install Bun JavaScript/TypeScript runtime?" "$( [ "$INSTALL_BUN" = "true" ] && echo "y" || echo "n" )"; then
-        INSTALL_BUN=true
-    else
-        INSTALL_BUN=false
-    fi
-
-    if ask_yes_no "Install Rust & Cargo?" "$( [ "$INSTALL_RUST" = "true" ] && echo "y" || echo "n" )"; then
-        INSTALL_RUST=true
-    else
-        INSTALL_RUST=false
-    fi
-
-    if ask_yes_no "Install Ruby?" "$( [ "$INSTALL_RUBY" = "true" ] && echo "y" || echo "n" )"; then
-        INSTALL_RUBY=true
-    else
-        INSTALL_RUBY=false
-    fi
-
-    if ask_yes_no "Install Docker?" "$( [ "$INSTALL_DOCKER" = "true" ] && echo "y" || echo "n" )"; then
-        INSTALL_DOCKER=true
-    else
-        INSTALL_DOCKER=false
-    fi
+    prompt_tool "Node.js (NVM, NPM, Yarn, pnpm)" "INSTALL_NODE" "$(get_node_ver)"
+    prompt_tool "Bun JavaScript/TypeScript runtime" "INSTALL_BUN" "$(get_bun_ver)"
+    prompt_tool "Rust & Cargo" "INSTALL_RUST" "$(get_rust_ver)"
+    prompt_tool "Ruby environment" "INSTALL_RUBY" "$(get_ruby_ver)"
+    prompt_tool "Docker" "INSTALL_DOCKER" "$(get_docker_ver)"
 else
-    echo "Installing all default tools and runtimes."
+    echo -e "${YELLOW}Running in default mode. Checking system for already installed tools...${NC}"
+    # Guard: default to skipping already installed, installing missing
+    INSTALL_LAZYGIT=true; if has_cmd lazygit; then INSTALL_LAZYGIT=false; fi
+    INSTALL_GH=true; if has_cmd gh; then INSTALL_GH=false; fi
+    INSTALL_ASDF=true; if has_cmd asdf || [ -d "$HOME/.asdf" ]; then INSTALL_ASDF=false; fi
+    INSTALL_RBENV=true; if has_cmd rbenv; then INSTALL_RBENV=false; fi
+    INSTALL_UV=true; if has_cmd uv; then INSTALL_UV=false; fi
+    INSTALL_PIPX=true; if has_cmd pipx; then INSTALL_PIPX=false; fi
+    INSTALL_NODE=true; if has_cmd node; then INSTALL_NODE=false; fi
+    INSTALL_BUN=true; if has_cmd bun; then INSTALL_BUN=false; fi
+    INSTALL_RUST=true; if has_cmd rustc; then INSTALL_RUST=false; fi
+    INSTALL_RUBY=true; if has_cmd ruby; then INSTALL_RUBY=false; fi
+    INSTALL_DOCKER=true; if has_cmd docker; then INSTALL_DOCKER=false; fi
 fi
 
 # Write selections to state file
