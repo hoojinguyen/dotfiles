@@ -33,7 +33,7 @@ TEMP_SECRETS=$(mktemp)
 echo "Please fill in the following API keys (press Enter to skip/keep current empty value):"
 echo ""
 
-while IFS= read -r line || [ -n "$line" ]; do
+while IFS= read -r -u 3 line || [ -n "$line" ]; do
     # Match export VAR="VALUE"
     if [[ "$line" =~ ^export[[:space:]]+([A-Za-z0-9_]+)=\"(.*)\"$ ]]; then
         var_name="${BASH_REMATCH[1]}"
@@ -80,7 +80,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     else
         echo "$line" >> "$TEMP_SECRETS"
     fi
-done < "$SECRETS_FILE"
+done 3< "$SECRETS_FILE"
 
 mv "$TEMP_SECRETS" "$SECRETS_FILE"
 chmod 600 "$SECRETS_FILE"
