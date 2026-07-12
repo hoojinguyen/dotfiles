@@ -4,14 +4,58 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+# Resolve script directory first
+cd "$(dirname "$0")"
+DOTFILES_ROOT=$(pwd)
+
+# Check if running standalone (e.g. via curl without a cloned repository)
+if [ ! -d "./install" ] || [ ! -f "./install/symlinks.sh" ]; then
+    echo "=================================================="
+    echo "   Installer running in Remote/Standalone mode   "
+    echo "=================================================="
+    echo "Cloning the dotfiles repository to ~/dotfiles..."
+    echo ""
+
+    # Ensure git is installed
+    if ! command -v git &> /dev/null; then
+        if [ "$(uname -s)" = "Darwin" ]; then
+            echo "Git is not installed. Installing Xcode Command Line Tools..."
+            xcode-select --install
+            echo "Please re-run this command once Xcode Command Line Tools are installed."
+        else
+            echo "Git is not installed. Attempting to install git..."
+            if command -v apt-get &> /dev/null; then
+                sudo apt-get update && sudo apt-get install -y git
+            else
+                echo "Error: git is required. Please install git manually and re-run."
+            fi
+        fi
+        
+        if ! command -v git &> /dev/null; then
+            exit 1
+        fi
+    fi
+
+    # Clone or update the repository
+    if [ ! -d "$HOME/dotfiles" ]; then
+        git clone https://github.com/hoojinguyen/dotfiles.git "$HOME/dotfiles"
+    else
+        echo "Directory ~/dotfiles already exists. Pulling latest changes..."
+        cd "$HOME/dotfiles"
+        git pull
+    fi
+
+    # Execute the local bootstrapped script
+    echo ""
+    echo "Restarting installer from cloned repository..."
+    exec bash "$HOME/dotfiles/bootstrap.sh" "$@"
+fi
+
+export DOTFILES="$DOTFILES_ROOT"
+
 echo "=================================================="
 echo "   Starting Universal Dotfiles Bootstrap Script   "
 echo "=================================================="
-
-# Ensure we're in the dotfiles directory
-cd "$(dirname "$0")"
-DOTFILES_ROOT=$(pwd)
-export DOTFILES="$DOTFILES_ROOT"
 
 # Ensure all scripts are executable
 chmod +x install/*.sh scripts/* sync.sh

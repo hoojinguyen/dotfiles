@@ -44,27 +44,22 @@ dotfiles/
 
 ## Getting Started
 
-### 1. Clone the repository
-Clone the dotfiles into your home directory (must be named `dotfiles`):
+### Quick Install (One-liner)
+You can clone the repository, pull updates, and launch the interactive setup with a single command:
 ```bash
-git clone https://github.com/<your-username>/dotfiles.git ~/dotfiles
-cd ~/dotfiles
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/hoojinguyen/dotfiles/main/bootstrap.sh)"
 ```
 
-### 2. Run the Bootstrap Script
-Run the installation script to link config files, install system packages, Oh My Zsh plugins, and runtime environments:
-```bash
-./bootstrap.sh
-```
+### Next Steps
 
-### 3. Reload your Shell
+#### 1. Reload your Shell
 After bootstrapping completes:
 ```bash
 source ~/.zshrc
 ```
 
-### 4. Configure local secrets
-Open `~/.secrets` in your editor and input your API keys:
+#### 2. Configure local secrets
+Open `~/.secrets` in your editor to check or fill in your API keys (like `GEMINI_API_KEY`, `GITHUB_PERSONAL_ACCESS_TOKEN`):
 ```bash
 nano ~/.secrets
 ```
