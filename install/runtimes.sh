@@ -58,13 +58,6 @@ if [ ! -d "$HOME/.nvm" ]; then
 fi
 
 
-# 4. Pipx Packages
-if has_cmd pipx; then
-    echo "Installing global pipx apps..."
-    pipx install graphifyy 2>/dev/null || echo "graphifyy already installed or failed."
-    pipx install my-llm-wiki 2>/dev/null || echo "my-llm-wiki already installed or failed."
-fi
-
 # 5. Global NPM Packages (Only if Node/NPM is active)
 if has_cmd npm; then
     echo "Installing global NPM packages..."
