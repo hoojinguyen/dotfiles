@@ -113,3 +113,6 @@ if [ -f "$HOME/.zshrc.local" ]; then
 fi
 
 
+
+# bun completions
+[ -s "/Users/hoojinguyen/.bun/_bun" ] && source "/Users/hoojinguyen/.bun/_bun"
