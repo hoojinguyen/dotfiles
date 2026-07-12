@@ -13,7 +13,7 @@ if [ ! -d "./install" ] || [ ! -f "./install/symlinks.sh" ]; then
     echo "=================================================="
     echo "   Installer running in Remote/Standalone mode   "
     echo "=================================================="
-    echo "Cloning the dotfiles repository to ~/dotfiles..."
+    echo "Cloning the dotfiles repository to ~/.dotfiles..."
     echo ""
 
     # Ensure git is installed
@@ -37,18 +37,18 @@ if [ ! -d "./install" ] || [ ! -f "./install/symlinks.sh" ]; then
     fi
 
     # Clone or update the repository
-    if [ ! -d "$HOME/dotfiles" ]; then
-        git clone https://github.com/hoojinguyen/dotfiles.git "$HOME/dotfiles"
+    if [ ! -d "$HOME/.dotfiles" ]; then
+        git clone https://github.com/hoojinguyen/dotfiles.git "$HOME/.dotfiles"
     else
-        echo "Directory ~/dotfiles already exists. Pulling latest changes..."
-        cd "$HOME/dotfiles"
+        echo "Directory ~/.dotfiles already exists. Pulling latest changes..."
+        cd "$HOME/.dotfiles"
         git pull
     fi
 
     # Execute the local bootstrapped script
     echo ""
     echo "Restarting installer from cloned repository..."
-    exec bash "$HOME/dotfiles/bootstrap.sh" "$@"
+    exec bash "$HOME/.dotfiles/bootstrap.sh" "$@"
 fi
 
 export DOTFILES="$DOTFILES_ROOT"

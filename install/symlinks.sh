@@ -2,7 +2,7 @@
 # install/symlinks.sh - Cross-platform configuration symlinker
 
 # Ensure DOTFILES_ROOT is set
-DOTFILES_ROOT="${DOTFILES:-$HOME/dotfiles}"
+DOTFILES_ROOT="${DOTFILES:-$HOME/.dotfiles}"
 
 echo "=================================================="
 echo "Creating symlinks to $HOME..."

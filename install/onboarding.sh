@@ -2,7 +2,7 @@
 # install/onboarding.sh - Interactive onboarding wizard for universal dotfiles
 
 # Source paths
-DOTFILES_ROOT="${DOTFILES:-$HOME/dotfiles}"
+DOTFILES_ROOT="${DOTFILES:-$HOME/.dotfiles}"
 SELECTIONS_FILE="$HOME/.dotfiles_selections"
 GIT_LOCAL_CONFIG="$HOME/.gitconfig.local"
 SECRETS_FILE="$HOME/.secrets"

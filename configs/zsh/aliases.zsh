@@ -5,7 +5,7 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias ~="cd ~"
-alias dotfiles="cd $DOTFILES"
+alias cdf="cd $DOTFILES"
 alias n="cd"
 alias b="cd .."
 
@@ -112,6 +112,8 @@ alias h2="history | tail -20"
 alias h5="history | tail -50"
 alias path='echo -e ${PATH//:/\\n}'
 alias edit="code"
+alias ez="edit ~/.zshrc"
+alias es="edit ~/.secrets"
 alias q="exit"
 
 # Project directory quick-jumps (if directory exists)

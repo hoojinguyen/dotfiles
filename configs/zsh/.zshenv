@@ -1,7 +1,7 @@
 # .zshenv - Environment variables for ZSH
 
 # Set the path to the dotfiles directory
-export DOTFILES="$HOME/dotfiles"
+export DOTFILES="$HOME/.dotfiles"
 
 # Set the default editor (fallback to nano on headless systems)
 if command -v code &> /dev/null; then

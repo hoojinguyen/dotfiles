@@ -1,7 +1,7 @@
 #!/bin/bash
 # scripts/dotfiles - Command-line interface for managing dotfiles
 
-DOTFILES_ROOT="${DOTFILES:-$HOME/dotfiles}"
+DOTFILES_ROOT="${DOTFILES:-$HOME/.dotfiles}"
 
 show_help() {
     echo "Dotfiles Management CLI"
@@ -9,17 +9,35 @@ show_help() {
     echo ""
     echo "Commands:"
     echo "  sync       Pull updates and push local changes"
+    echo "  update     Pull latest updates from the dotfiles repository"
     echo "  status     Show git status of the dotfiles repository"
     echo "  edit       Open dotfiles folder in the default editor"
     echo "  bootstrap  Run the bootstrap setup script"
     echo "  help       Show this help message"
     echo ""
-    echo "Note: To easily change directories, use the 'dotfiles' alias: cd \$DOTFILES"
+    echo "Note: To easily change directories, use the 'cdf' alias: cd \$DOTFILES"
 }
 
 case "$1" in
     sync)
         bash "$DOTFILES_ROOT/sync.sh"
+        ;;
+    update)
+        cd "$DOTFILES_ROOT"
+        echo "Pulling latest changes from dotfiles repository..."
+        if git pull origin main; then
+            echo "Successfully pulled latest changes."
+            # Check if running interactively
+            if [ -t 0 ]; then
+                read -r -p "Would you like to run the bootstrap installer now? [y/N]: " choice
+                if [[ "$choice" =~ ^[yY]$ ]]; then
+                    bash "$DOTFILES_ROOT/bootstrap.sh"
+                fi
+            fi
+        else
+            echo "Error: git pull failed."
+            exit 1
+        fi
         ;;
     status)
         cd "$DOTFILES_ROOT" && git status
