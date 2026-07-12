@@ -1,7 +1,11 @@
 # .zshenv - Environment variables for ZSH
 
-# Set the path to the dotfiles directory
-export DOTFILES="$HOME/.dotfiles"
+# Set the path to the dotfiles directory (dynamically resolved if symlinked)
+if [ -L "$HOME/.zshenv" ]; then
+    export DOTFILES=$(dirname $(dirname $(dirname $(readlink "$HOME/.zshenv"))))
+else
+    export DOTFILES="$HOME/.dotfiles"
+fi
 
 # Set the default editor (fallback to nano on headless systems)
 if command -v code &> /dev/null; then
