@@ -28,3 +28,17 @@ function cpc() {
         echo "File not found: $1"
     fi
 }
+
+# SSH/Clipboard utilities
+alias copypubkey="cat ~/.ssh/id_*.pub 2>/dev/null | head -n 1 | pbcopy && echo 'First SSH public key copied to clipboard.'"
+
+# System & Networking
+alias dnsflush="sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder && echo 'macOS DNS cache flushed.'"
+
+# Finder & Desktop utilities
+alias showfiles="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+alias hidefiles="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+alias cleanup_ds="find . -type f -name '.DS_Store' -ls -delete && echo '.DS_Store files cleaned.'"
+
+# Power management
+alias lockdisplay="pmset displaysleepnow"
