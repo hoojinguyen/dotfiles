@@ -111,7 +111,6 @@ alias h1="history | tail -10"
 alias h2="history | tail -20"
 alias h5="history | tail -50"
 alias path='echo -e ${PATH//:/\\n}'
-alias edit="code"
 alias ez="edit ~/.zshrc"
 alias es="edit ~/.secrets"
 alias q="exit"

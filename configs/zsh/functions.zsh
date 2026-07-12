@@ -269,3 +269,16 @@ dexec() {
   fi
 }
 
+# Smart file editor launcher (fallbacks: VS Code -> macOS Default Editor -> $EDITOR -> nano)
+function edit() {
+  if command -v code &> /dev/null; then
+    code "$@"
+  elif [ "$(uname)" = "Darwin" ]; then
+    open -t "$@"
+  elif [ -n "$EDITOR" ]; then
+    $EDITOR "$@"
+  else
+    nano "$@"
+  fi
+}
+
