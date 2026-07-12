@@ -6,12 +6,14 @@ mkd() {
 }
 
 # Find file with pattern
-ff() {
+unalias ff 2>/dev/null
+function ff() {
   find . -type f -iname "*$1*"
 }
 
 # Find directory with pattern
-fd() {
+unalias fd 2>/dev/null
+function fd() {
   find . -type d -iname "*$1*"
 }
 
