@@ -1,8 +1,9 @@
 # .zshenv - Environment variables for ZSH
 
-# Set the path to the dotfiles directory (dynamically resolved if symlinked)
-if [ -L "$HOME/.zshenv" ]; then
-    export DOTFILES=$(dirname $(dirname $(dirname $(readlink "$HOME/.zshenv"))))
+# Set the path to the dotfiles directory (dynamically resolved from this script's real path)
+CURRENT_SCRIPT="${${(%):-%x}:A}"
+if [[ -n "$CURRENT_SCRIPT" && "$CURRENT_SCRIPT" == */configs/zsh/.zshenv ]]; then
+    export DOTFILES="${${${CURRENT_SCRIPT:h}:h}:h}"
 fi
 
 # Fallback to ~/.dotfiles if dynamic resolution fails or resolves to a non-existent directory

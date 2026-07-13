@@ -25,6 +25,19 @@ if [ -f "$ZSH/oh-my-zsh.sh" ]; then
   source "$ZSH/oh-my-zsh.sh"
 fi
 
+# Ensure DOTFILES path is set (dynamically resolved from this script's real path if not already set)
+if [ -z "$DOTFILES" ] || [ ! -d "$DOTFILES" ]; then
+  CURRENT_SCRIPT="${${(%):-%x}:A}"
+  if [[ -n "$CURRENT_SCRIPT" && "$CURRENT_SCRIPT" == */configs/zsh/.zshrc ]]; then
+    export DOTFILES="${${${CURRENT_SCRIPT:h}:h}:h}"
+  fi
+fi
+
+# Fallback to ~/.dotfiles if still not set
+if [ -z "$DOTFILES" ] || [ ! -d "$DOTFILES" ]; then
+  export DOTFILES="$HOME/.dotfiles"
+fi
+
 # Load modular configs
 if [ -d "$DOTFILES/configs/zsh" ]; then
   source "$DOTFILES/configs/zsh/config.zsh"
